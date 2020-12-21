@@ -1,0 +1,7 @@
+dist
+node_modules
+req.file
+response-example.json
+tsconfig.tsbuildinfo
+package-lock.json
+.vscode
