@@ -1,7 +1,7 @@
 import * as Joi from 'joi';
 
 export const UserValidation = Joi.object().keys({
-    id: Joi.number().required(),
+    // id: Joi.number().required(),
     name: Joi.string().min(3).max(50).required(),
     username: Joi.string().min(3).max(100).required(),
     address: Joi.object().keys({

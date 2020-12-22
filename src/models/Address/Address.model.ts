@@ -26,7 +26,6 @@ export class Address {
     @Column('float')
     lng: number;
 
-    // @OneToMany(() => Address, address => address.user, { cascade: true, onDelete: "CASCADE" })
     @OneToMany(() => User, user => user.address, { onDelete: "CASCADE" })
     user: User[];
 }

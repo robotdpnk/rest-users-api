@@ -6,6 +6,7 @@ import { UserValidation } from '../../models/User/User.validation';
 import { EntityNotFoundException, ApiError } from '../../common/Errors/API/ApiErrors';
 import { ApiUser } from './User.service.types';
 import { User, Address, Company, Contact } from '../../models';
+import {  alphabeticOrderFn } from '../../common/util/util';
 
 export class UserService extends BaseService<User> {
     private readonly repository: Repository<User>;
@@ -41,6 +42,7 @@ export class UserService extends BaseService<User> {
             }
         };
 
+        delete transformedUser.id;
         delete transformedUser.address.geo;
         delete transformedUser.phone;
         delete transformedUser.website;
@@ -78,11 +80,40 @@ export class UserService extends BaseService<User> {
             .then((response:Response) => response.body)
             .then(JSON.parse);
 
-        return await this.validateSchema(
+        const validationResult = await this.validateSchema(
             rawUsers, 
             this.transformApiToUser.bind(this), 
-            (user) => this.addUser(user) // test
+            // (user) => this.addUser(user)
             );
+
+        // @ts-ignore
+        const { validUsers, invalidUsers } = validationResult
+            .reduce((result: any , item: any) => {
+                if (item.error) {
+                    result.invalidUsers.push(item)
+                    return result;
+                }
+                result.validUsers.push(item)
+                return result;
+            }, 
+            { validUsers: [], invalidUsers: []})
+        
+        const suiteOrderedUsers = validUsers
+            .sort(alphabeticOrderFn('name'))
+            .filter(this.isSuiteUser);
+
+        const savedUsersPromise = suiteOrderedUsers
+            .map((validUser: User) => {
+                return this.addUser(validUser);
+            })
+
+        return Promise.all(savedUsersPromise).then((savedUsers)=> {
+            return [...invalidUsers, ...savedUsers];
+        }).catch(err => err)
+    }
+
+    private isSuiteUser (user: User) {
+        return /^[Ss]uite.{2,100}/.test(user.address.suite);
     }
 
     public async getAllUsers () : Promise<User[]> {

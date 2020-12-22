@@ -41,7 +41,6 @@ export abstract class BaseService<T> {
                         resolve(value)
                     }
                 }
-
             });
         })
         return Promise.all(promises).then();
