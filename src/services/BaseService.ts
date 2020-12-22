@@ -1,18 +1,17 @@
-import { Router } from 'express';
-import * as Joi from 'joi';
+import Joi, { ValidationError } from 'joi';
 
-export abstract class BaseRoute<T> {
-    router: Router
-    name: string;
+type CustomValidationError = 
+    { validationError: ValidationError }
 
-    constructor () {
-        this.router = Router();
-    }
+type ValidationResult<T> = 
+    Promise< Array<T | CustomValidationError> >
 
-    abstract getName (): string; 
+export abstract class BaseService<T> {
+    constructor () { }
+
     abstract getSchema (): Joi.Schema;
 
-    // suggestion: create a mixin for validation
+    // suggestion
     validateSchema (entities: T[], transFn?: (raw:any)=>T, fn?: (entity: T) => Promise<T>): ValidationResult<T> {
         const schema: Joi.Schema = this.getSchema();
         schema.validate

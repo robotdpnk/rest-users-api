@@ -15,15 +15,15 @@ export class User extends BaseEntity {
     @Column({ length: 100, /* unique: true */ })
     username: string;
 
-    @ManyToOne(() => Address, address => address.user, { cascade: true })
+    @ManyToOne(() => Address, address => address.user, { cascade: true, onDelete: "CASCADE" })
     @JoinColumn()
     address: Address;
 
-    @ManyToOne(() => Company, { cascade: true }) 
+    @ManyToOne(() => Company, { cascade: true, onDelete: "CASCADE" }) 
     @JoinColumn()
     company: Company
 
-    @ManyToOne(() => Contact, contact => contact.user, { cascade: true })
+    @ManyToOne(() => Contact, contact => contact.user, { cascade: true, onDelete: "CASCADE" })
     @JoinColumn()
     contact: Contact
 }

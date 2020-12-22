@@ -10,7 +10,7 @@ import { User } from '../../models';
 @Path('/user')
 export class UserRoute extends BaseRoute<User> {
     public name: string = 'user';
-    private readonly userService: UserService<User>;
+    private readonly userService: UserService;
 
     getName() { return this.name; }
     getSchema () { return UserValidation; }
@@ -23,6 +23,31 @@ export class UserRoute extends BaseRoute<User> {
     @GET
     showUsers () {
         return this.userService.getAllUsers();
+    }
+
+    /**
+     * Realiza download de api/users e responde a cliente
+     * @returns {string} Contem reposta JSON formadata
+     */
+    @Path('/download')
+    @GET
+    @IgnoreNextMiddlewares
+    async downloadApiData (): Promise<JSON> {
+        return await this.userService.downloadApiData();
+    }
+
+    @Path('/save')
+    @GET
+    @IgnoreNextMiddlewares
+    saveApiData (): Promise<{ success: User[], error: any[] }> {
+        return this.userService.saveApiData();
+    }
+
+    @Path('/delete_all')
+    @GET
+    @IgnoreNextMiddlewares
+    deleteAllApiData (): Promise<any> {
+        return this.userService.deleteAllApiData();
     }
 
     @Path(":id")

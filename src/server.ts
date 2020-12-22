@@ -1,5 +1,4 @@
-import express, { Application, Router } from 'express';
-import  { ExtractJwt, Strategy, StrategyOptions } from 'passport-jwt';
+import express, { Application, NextFunction, Request, Response } from 'express';
 import http from 'http';
 import {  MySqlConnector } from './connectors/mysql-connector'
 import {  Connection } from 'typeorm';
@@ -40,6 +39,15 @@ export class Server extends TypeServer {
         });
 
         Server.buildServices(this.app, [UserRoute, AddressRoute, CompanyRoute, ContactRoute]);
+
+        // this.app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+        //     if (err.status >= 400 && err.status < 500 || err.statusCode >= 400 && err.statusCode < 500) {
+        //         console.log(`Couldnt found url: ${req.url}`);
+        //         res.status(404).send(`route: ${req.url}, not found`)
+        //     }
+
+        //     next();
+        // })
     }
 
     run () {
