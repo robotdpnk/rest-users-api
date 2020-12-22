@@ -4,6 +4,10 @@ import {  MySqlConnector } from './connectors/mysql-connector'
 import {  Connection } from 'typeorm';
 import { Server as TypeServer} from 'typescript-rest';
 
+import morgan from 'morgan';
+import fs from 'fs';
+import path from 'path';
+
 import { AddressRoute, UserRoute, CompanyRoute, ContactRoute } from './routes';
 
 import { config } from 'process';
@@ -12,8 +16,10 @@ import cors from 'cors';
 export class Server extends TypeServer {
 
     private PORT: number = 5151;
+    private LOG_DIR: string = path.resolve(__dirname, 'LOGS');
     private app: Application;
     private server: http.Server;
+
 
     constructor (/* config */) {
         super();
@@ -24,6 +30,9 @@ export class Server extends TypeServer {
     } 
 
     initialize () {
+        this.setupDirectories();
+        this.setupRequestLogs();
+
         Server.buildServices(this.app); // apply routes
 
         this.app.use(cors({ 
@@ -31,12 +40,6 @@ export class Server extends TypeServer {
                 return true;
             }
         }));
-
-        // log requests
-        this.app.use("*", (req, res, next) => {
-            console.log(`${new Date()} - ${req.method} - ${req.url} `);
-            next()
-        });
 
         Server.buildServices(this.app, [UserRoute, AddressRoute, CompanyRoute, ContactRoute]);
 
@@ -48,6 +51,27 @@ export class Server extends TypeServer {
 
         //     next();
         // })
+    }
+
+    private setupRequestLogs () {
+        this.app.use(
+            morgan('common', { 
+                stream: fs.createWriteStream(
+                    path.resolve(this.LOG_DIR, 'request-log.txt'), { flags: 'a' }
+                )
+            })
+        )
+        this.app.use(morgan('dev'));
+    }
+
+    private setupDirectories () {
+        try {
+            if (!fs.existsSync(this.LOG_DIR)) {
+                fs.mkdirSync(this.LOG_DIR)
+            }
+        } catch (e) {
+            throw e;
+        }
     }
 
     run () {
