@@ -1,5 +1,5 @@
 import { getManager, EntityManager, getRepository, Repository, DeleteResult, DeepPartial, UpdateResult } from 'typeorm';
-import { GotHttp as Http } from '../../common/http/GotHttp';
+import Http from '../../common/http/Http';
 import { BaseService } from '../BaseService';
 import { UserValidation } from '../../models/User/User.validation';
 
@@ -11,7 +11,6 @@ import {  alphabeticOrderFn } from '../../common/util/util';
 export class UserService extends BaseService<User> {
     private readonly repository: Repository<User>;
     private api: any;
-    private eapi: any;
     private manager: EntityManager;
 
     constructor () {
@@ -20,7 +19,6 @@ export class UserService extends BaseService<User> {
         this.repository = getRepository<User>(User);
         this.manager = getManager();
         this.api = new Http('http://localhost:3000/api')
-        this.eapi = new Http('http://localhost:3000/error-api')
     }
 
     getSchema() {
@@ -64,27 +62,22 @@ export class UserService extends BaseService<User> {
         }
     }
 
-    /**
-     * Realiza download e api/users
-     */
     public async downloadApiData (): Promise<JSON> {
-        return this.api('users')
-            .then((response: Response) => response.body)
-            // .then(JSON.parse);
+        return await this.api('users')
+            .then((response: Response) => response.body);
     }
 
-    public async saveApiData (): Promise<any> {
-        this.repository.delete({});
+    public async saveApiData (): Promise<User[]> {
+        await this.repository.delete({});
 
-        const rawUsers = await this.eapi.get('users')
+        const rawUsers = await this.api('users')
             .then((response:Response) => response.body)
             .then(JSON.parse);
 
         const validationResult = await this.validateSchema(
             rawUsers, 
             this.transformApiToUser.bind(this), 
-            // (user) => this.addUser(user)
-            );
+        );
 
         // @ts-ignore
         const { validUsers, invalidUsers } = validationResult
@@ -97,7 +90,7 @@ export class UserService extends BaseService<User> {
                 return result;
             }, 
             { validUsers: [], invalidUsers: []})
-        
+
         const suiteOrderedUsers = validUsers
             .sort(alphabeticOrderFn('name'))
             .filter(this.isSuiteUser);

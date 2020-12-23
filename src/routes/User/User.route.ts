@@ -39,7 +39,7 @@ export class UserRoute extends BaseRoute<User> {
     @Path('/save')
     @GET
     @IgnoreNextMiddlewares
-    saveApiData (): Promise<{ success: User[], error: any[] }> {
+    saveApiData (): Promise<User[]> {
         return this.userService.saveApiData();
     }
 
@@ -65,10 +65,7 @@ export class UserRoute extends BaseRoute<User> {
     @Path(":id")
     @PATCH
     public async updateUser (@PathParam('id') id: string, entity: User) {
-        console.log(id);
-        const res = await this.userService.updateUser(id, entity);
-        console.log(res);
-        
+        return await this.userService.updateUser(id, entity);
     }
 
     @Path(":id")

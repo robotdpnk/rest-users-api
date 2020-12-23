@@ -34,7 +34,7 @@ export abstract class BaseService<T> {
                         ...(error || errors)
                     })
                 } else {
-                    if (fn) {
+                    if (fn) { // calback can be used to save data to db
                         // need to treat error case
                         resolve(fn(value));
                     } else {

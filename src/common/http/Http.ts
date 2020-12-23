@@ -1,7 +1,6 @@
 import got from 'got';
-import { Http2ServerRequest } from 'http2';
 
-export class GotHttp {
+export default class Http {
     constructor (url: string) {
         return got.extend({
             baseUrl: url
