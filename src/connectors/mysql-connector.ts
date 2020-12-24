@@ -14,11 +14,11 @@ export class MySqlConnector {
             const options: ConnectionOptions = {
                 type: 'mysql',
                 synchronize: true,
-                host: 'localhost',
-                port: 3306,
-                username: 'root',
-                password: 'mohSgl',
-                database: 'SuiteUsersDB',
+                host: process.env.DB_HOST,
+                port: Number(process.env.DB_PORT),
+                username: process.env.DB_USER,
+                password: process.env.DB_PASSWORD,
+                database: process.env.DB_DATABASE,
                 // logging: ['query', 'error'],
                 entities: [
                     path.resolve(__dirname, '../models/User/User.model.js'),

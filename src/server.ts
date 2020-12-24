@@ -3,6 +3,7 @@ import http from 'http';
 import {  MySqlConnector } from './connectors/mysql-connector'
 import {  Connection } from 'typeorm';
 import { Server as TypeServer} from 'typescript-rest';
+import { config as dotenv } from 'dotenv';
 
 import morgan from 'morgan';
 import fs from 'fs';
@@ -15,7 +16,6 @@ import cors from 'cors';
 
 export class Server extends TypeServer {
 
-    private PORT: number = 5151;
     private LOG_DIR: string = path.resolve(__dirname, 'LOGS');
     private app: Application;
     private server: http.Server;
@@ -30,6 +30,7 @@ export class Server extends TypeServer {
     } 
 
     initialize () {
+        this.loadEnvVariables()
         this.setupDirectories();
         this.setupRequestLogs();
 
@@ -48,9 +49,13 @@ export class Server extends TypeServer {
         //         console.log(`Couldnt found url: ${req.url}`);
         //         res.status(404).send(`route: ${req.url}, not found`)
         //     }
-
         //     next();
         // })
+    }
+
+    public loadEnvVariables() {
+        const envPath = path.resolve(__dirname, '..', './.env.example');
+        dotenv({ path: envPath });
     }
 
     private setupRequestLogs () {
@@ -76,12 +81,16 @@ export class Server extends TypeServer {
 
     run () {
         return new Promise<Connection>((resolve, reject) => {
-            this.server = this.app.listen(this.PORT, () => {
-                const conn = new MySqlConnector()
-                conn.connect()
+            this.server = this.app.listen(
+                Number(process.env.BACKEND_PORT), 
+                String(process.env.BACKEND_HOST), 
+                () => {
+                    const conn = new MySqlConnector()
+                    conn.connect()
 
-                return resolve(conn.connection);
-            })
+                    return resolve(conn.connection);
+                }
+            )
         })
     }
 }
