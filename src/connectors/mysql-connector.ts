@@ -11,6 +11,7 @@ export class MySqlConnector {
 
     public connect(): Promise<void> {
         return new Promise((resolve, reject) => {
+            console.log('process.env.DB_HOST : ', process.env.DB_HOST);
             const options: ConnectionOptions = {
                 type: 'mysql',
                 synchronize: true,
