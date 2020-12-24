@@ -18,7 +18,7 @@ export class UserService extends BaseService<User> {
 
         this.repository = getRepository<User>(User);
         this.manager = getManager();
-        this.api = new Http('http://localhost:3000/api')
+        this.api = new Http('https://jsonplaceholder.typicode.com/');
     }
 
     getSchema() {
